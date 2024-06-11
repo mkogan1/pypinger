@@ -22,7 +22,7 @@ def ping_hosts(hosts):
                 delay = ping(host, unit='ms', size=1, timeout=8)
             if delay is None or delay is False:
                 # print(f'ERR: {host} is not reachable')
-                print(f'❌: {host}')
+                print(f'❌ : {host.split(".")[0]}')
                 return
             else:
                 with open('/tmp/pypinger.log', 'a') as f:
@@ -31,7 +31,7 @@ def ping_hosts(hosts):
                 # print(f'OK: {host} is reachable with delay {int(delay)} ms')
         except Exception as e:
             # print(f'ERR: {host} caused an exception: {e}')
-            print(f'❌: {host}')
+            print(f'❌ : {host}')
             return
     # print('OK: All hosts are reachable')
     print('✅')
