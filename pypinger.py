@@ -7,32 +7,33 @@
 # pip install ping3
 
 import sys
-from ping3 import ping, verbose_ping
-import os
 
-if os.path.exists('/tmp/pypinger.log'):
-    os.remove('/tmp/pypinger.log')
-    
+# https://pypi.org/project/ping3/
+import ping3
+from ping3 import ping, verbose_ping
+ping3.DEBUG = False  # module global, not an attr on the ping function
+
 
 def ping_hosts(hosts):
-    for host in hosts:
-        try:
-            delay = ping(host, unit='ms', size=1, timeout=8)
-            if delay is None or delay is False:  # retry mechanism to handle packet loss
-                delay = ping(host, unit='ms', size=1, timeout=8)
-            if delay is None or delay is False:
-                # print(f'ERR: {host} is not reachable')
-                print(f'❌ : {host.split(".")[0]}')
-                return
-            else:
-                with open('/tmp/pypinger.log', 'a') as f:
+    with open('/tmp/pypinger.log', 'w') as f:  # truncate once, one fd for the whole run
+        for host in hosts:
+            try:
+                #  delay = ping(host, unit='ms', size=1, timeout=8)
+                delay = ping(host, unit='ms', timeout=1)
+                if delay is None or delay is False:  # retry mechanism to handle packet loss
+                    #  delay = ping(host, unit='ms', size=1, timeout=8)
+                    delay = ping(host, unit='ms', timeout=1)
+                if delay is None or delay is False:
+                    # print(f'ERR: {host} is not reachable')
+                    print(f'❌ : {host.split(".")[0]}')
+                    return
+                else:
                     f.write(f'OK: {host} is reachable with delay {int(delay)} ms\n')
-                    f.close()
-                # print(f'OK: {host} is reachable with delay {int(delay)} ms')
-        except Exception as e:
-            # print(f'ERR: {host} caused an exception: {e}')
-            print(f'❌ : {host}')
-            return
+                    # print(f'OK: {host} is reachable with delay {int(delay)} ms')
+            except Exception as e:
+                # print(f'ERR: {host} caused an exception: {e}')
+                print(f'❌ : {host}')
+                return
     # print('OK: All hosts are reachable')
     print('✅')
 
